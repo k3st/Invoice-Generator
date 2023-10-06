@@ -23,30 +23,36 @@ class InvoiceApp:
         self.invoice_entry = tk.Entry(root)
         self.invoice_entry.grid(row= 2, column= 1)
 
-        self.item_label = tk.Label(root, text="Item:")
-        self.item_label.grid(row= 3, column= 0)
-        self.item_entry = tk.Entry(root)
-        self.item_entry.grid(row= 3, column= 1)
+        #CALENDAR START DATE AND END DATE
 
-        self.quantity_label = tk.Label(root, text="Quantity:")
+        self.desc_label = tk.Label(root, text="Description:")
+        self.desc_label.grid(row= 3, column= 0)
+        self.desc_entry = tk.Entry(root)
+        self.desc_entry.grid(row= 3, column= 1)
+
+        self.quantity_label = tk.Label(root, text="Days:")
         self.quantity_label.grid(row= 4, column= 0)
         self.quantity_entry = tk.Entry(root)
         self.quantity_entry.grid(row= 4, column= 1)
 
+        self.price_label = tk.Label(root, text="Price:")
+        self.price_label.grid(row= 5, column= 0)
+        self.price_entry = tk.Entry(root)
+        self.price_entry.grid(row= 5, column= 1)
 
         ###         ADD ITEM 
 
         self.add_item_button = tk.Button(root, text="Add Item", command=self.addItems)
-        self.add_item_button.grid(row = 5, column= 1, pady=5)
+        self.add_item_button.grid(row = 7, column= 1, pady=5)
 
-        columns = ('qty', 'desc', 'price', 'total')
+        columns = ('desc','qty',  'price', 'total')
         self.tree = ttk.Treeview(root, columns=columns, show= "headings")
-        self.tree.heading('qty', text='QTY')
         self.tree.heading('desc', text='Description')
+        self.tree.heading('qty', text='Number of Days')        
         self.tree.heading('price', text='Price')
         self.tree.heading('total', text='TOTAL')
 
-        self.tree.grid(row = 6, column=0,columnspan=2,padx=30,pady=10)
+        self.tree.grid(row = 8, column=0,columnspan=2,padx=30,pady=10)
 
         ###         ALL ITEMS
 
@@ -58,7 +64,13 @@ class InvoiceApp:
     def addItems(self):
         qty = int(self.quantity_entry.get())
         price = float(self.price_entry.get())
+        desc = self.desc_entry.get()
         line_total = qty * price
+        invoice_items = [qty,desc,price,line_total]
+
+        self.tree.insert('',0,values=invoice_items)
+        
+
         print("ADDED")
 
     def newInvoice(self):
