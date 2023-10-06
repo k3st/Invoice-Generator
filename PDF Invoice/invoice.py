@@ -46,20 +46,23 @@ class InvoiceApp:
         self.tree.heading('price', text='Price')
         self.tree.heading('total', text='TOTAL')
 
-        self.tree.grid(row = 6, column=0,columnspan=2,padx=20,pady=10)
+        self.tree.grid(row = 6, column=0,columnspan=2,padx=30,pady=10)
 
         ###         ALL ITEMS
 
         self.save_generate_button = tk.Button(root, text="Generate Invoice", command=self.generate_invoice)
-        self.save_generate_button.grid(row= 9, column=1)
-        self.new_generate_button = tk.Button(root, text="New Invoice", command=self.neewwww)
-        self.new_generate_button.grid(row= 10, column=1)
+        self.save_generate_button.grid(row= 9, column=1,pady=10)
+        self.new_generate_button = tk.Button(root, text="New Invoice", command=self.newInvoice)
+        self.new_generate_button.grid(row= 10, column=0,columnspan=2,pady=10)
 
     def addItems(self):
         qty = int(self.quantity_entry.get())
         price = float(self.price_entry.get())
         line_total = qty * price
         print("ADDED")
+
+    def newInvoice(self):
+        print("NEWWWW")
 
     def generate_invoice(self):
         invoice_number = self.invoice_entry.get()
