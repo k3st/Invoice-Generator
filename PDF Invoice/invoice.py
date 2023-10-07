@@ -60,38 +60,43 @@ class InvoiceApp:
         ###         ADD ITEM 
 
         self.add_item_button = tk.Button(root, text="Add Current Item", command=self.addItems)
-        self.add_item_button.grid(row = 4, column= 5,sticky="se")
+        self.add_item_button.grid(row = 4, column= 5,sticky="s")
 
         self.add_item_button = tk.Button(root, text="Delete Item", command=self.deleteItem)
         self.add_item_button.grid(row = 8, column= 5,sticky="N")
-
         
+        columns = ('start','end','arr','driver','guide','days', 'price', 'total')
+        self.tree = ttk.Treeview(root, columns=columns, show= "headings")            
 
-        # columns = ('start','end','arr','driver','guide','days', 'price', 'total')
-        columns = ('driver','guide','days', 'price', 'total')
-        self.tree = ttk.Treeview(root, columns=columns, show= "headings")
+        for col in columns:
+            self.tree.heading(col, text=col.capitalize())
+            self.tree.column(col, width=100)
 
-        self.tree.heading('start', text='Start Date')
-        self.tree.heading('end', text='End Date')        
-        self.tree.heading('arr', text='Arrival')
-        self.tree.heading('driver', text='Driver')
-        self.tree.heading('guide', text='Guide')
-        self.tree.heading('days', text='Number of Days')        
-        self.tree.heading('price', text='Price')
-        self.tree.heading('total', text='TOTAL')
+        # # # Configure vertical scrollbar
+        # v_scrollbar = ttk.Scrollbar(root, orient="vertical", command=self.tree.yview)
+        # self.tree.configure(yscrollcommand=v_scrollbar.set)
+        # v_scrollbar.grid(row=0, column=9, rowspan=10, sticky=(tk.N, tk.S))
 
-        self.tree.grid(row = 7, column=0,columnspan=8,padx=15,pady=10)
+        # # # Configure horizontal scrollbar
+        # h_scrollbar = ttk.Scrollbar(root, orient="horizontal", command=self.tree.xview)
+        # self.tree.configure(xscrollcommand=h_scrollbar.set)
+        # h_scrollbar.grid(row=8, column=0, columnspan=8, sticky=(tk.W, tk.E))
+
+        # self.tree.grid(row=7, column=0, columnspan=8,sticky=(tk.W, tk.E, tk.N, tk.S))
+
+        self.tree.grid(row = 7, column=0,columnspan=6, padx=15, pady=10)
 
         ###         ALL ITEMS
 
         self.save_generate_button = tk.Button(root, text="Generate Invoice", command=self.generate_invoice)
-        self.save_generate_button.grid(row= 9, column=1,pady=10)
+        self.save_generate_button.grid(row= 9, column=3,stick="NEWS",pady=20)
         self.new_generate_button = tk.Button(root, text="New Invoice", command=self.newInvoice)
-        self.new_generate_button.grid(row= 10, column=0,columnspan=2,pady=10)
+        self.new_generate_button.grid(row= 10, column=3,stick="EWS",pady=5)
 
     def clear_values(self):
+        self.driver_entry.delete(0,tk.END)
+        self.guide_entry.delete(0,tk.END)
         self.quantity_entry.delete(0,tk.END)
-        self.desc_entry.delete(0, tk.END)
         self.price_entry.delete(0,tk.END)
         self.price_entry.insert(0, "0.0")
 
@@ -114,30 +119,40 @@ class InvoiceApp:
 
     def deleteItem(self):
         selected_item = self.tree.selection()[0]
+        item_values = self.tree.item(selected_item, 'values')
+        print(item_values)
         self.tree.delete(selected_item)
+
+        for item in invoice_list:
+            if item[:8] == item_values:
+                invoice_list.remove(item)
+                print("Item Deleted")
+                break
         print("Item Deleted")
 
     def newInvoice(self):
         self.company_entry.delete(0,tk.END)
         self.clear_values()
         self.tree.delete(*self.tree.get_children())
+        invoice_list.clear()
         print("New Invoice")
 
     def generate_invoice(self):
         doc = DocxTemplate("invoice_template.docx")
+        getDateToday =datetime.datetime.now() 
         companyName = self.company_entry.get()
 
-        grandTotal = sum(item[8] for item in invoice_list)
+        grandTotal = sum(item[7] for item in invoice_list)
+        todaysDate = getDateToday.strftime("%b %d, %Y")
 
         doc.render({
             "company":companyName,
-            "date_today":"date today",
+            "date_today": todaysDate,
             "invoice_list": invoice_list,
             "grand_total": grandTotal
             
             })
-        
-        getDateToday =datetime.datetime.now()        
+                      
         file_path = "Invoice Receipt/" + getDateToday.strftime("%B") + "/"
         file_name = companyName +".docx"
         
