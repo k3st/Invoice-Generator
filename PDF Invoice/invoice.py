@@ -1,6 +1,9 @@
+import datetime
+import os
 import tkinter as tk
 from tkinter import ttk
 from fpdf import FPDF
+from docxtpl import DocxTemplate
 
 class InvoiceApp:
     def __init__(self, root):
@@ -9,7 +12,7 @@ class InvoiceApp:
         # Create labels, entries, and buttons
 
         self.company = tk.Label(root, text="Company")
-        self.company.grid(row= 0, column= 0)
+        self.company.grid(row= 0, column= 0,pady=10)
         self.company_entry = tk.Entry(root)
         self.company_entry.grid(row= 0, column= 1)
 
@@ -45,7 +48,7 @@ class InvoiceApp:
         self.add_item_button = tk.Button(root, text="Add Item", command=self.addItems)
         self.add_item_button.grid(row = 7, column= 1, pady=5)
 
-        columns = ('desc','qty',  'price', 'total')
+        columns = ('desc','qty', 'price', 'total')
         self.tree = ttk.Treeview(root, columns=columns, show= "headings")
         self.tree.heading('desc', text='Description')
         self.tree.heading('qty', text='Number of Days')        
@@ -61,6 +64,13 @@ class InvoiceApp:
         self.new_generate_button = tk.Button(root, text="New Invoice", command=self.newInvoice)
         self.new_generate_button.grid(row= 10, column=0,columnspan=2,pady=10)
 
+    def clear_values(self):
+        self.quantity_entry.delete(0,tk.END)
+        self.desc_entry.delete(0, tk.END)
+        self.price_entry.delete(0,tk.END)
+        self.price_entry.insert(0, "0.0")
+
+    
     def addItems(self):
         qty = int(self.quantity_entry.get())
         price = float(self.price_entry.get())
@@ -69,35 +79,50 @@ class InvoiceApp:
         invoice_items = [qty,desc,price,line_total]
 
         self.tree.insert('',0,values=invoice_items)
-        
-
+        self.clear_values()
+        invoice_list.append(invoice_items)
         print("ADDED")
 
+    def delete_item(self):
+        selected_item = self.tree.selection()[0]
+        self.tree.delete(selected_item)
+        print("Item Deleted")
+
     def newInvoice(self):
-        print("NEWWWW")
+        self.company_entry.delete(0,tk.END)
+        self.clear_values()
+        self.tree.delete(*self.tree.get_children())
+        print("New Invoice")
 
     def generate_invoice(self):
-        invoice_number = self.invoice_entry.get()
-        item = self.item_entry.get()
-        quantity = self.quantity_entry.get()
+        doc = DocxTemplate("invoice_template.docx")
+        companyName = self.company_entry.get()
 
-        # Generate invoice text
-        invoice_text = f"Invoice Number: {invoice_number}\nItem: {item}\nQuantity: {quantity}"
+        grandTotal = sum(item[3] for item in invoice_list)
 
-        # Save invoice to a text file
-        with open("invoice.txt", "w") as file:
-            file.write(invoice_text)
-
-        # Generate PDF from the text
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=invoice_text, ln=True, align='L')
-        pdf.output("invoice.pdf")
+        doc.render({
+            "company":companyName,
+            "date_today":"date today",
+            "invoice_list": invoice_list,
+            "grand_total": grandTotal
+            
+            })
+        
+        getDateToday =datetime.datetime.now()        
+        file_path = "Invoice Receipt/" + getDateToday.strftime("%B") + "/"
+        file_name = companyName +".docx"
+        
+        doc_name = file_path + getDateToday.strftime("%b-%d-%H%M%S_") + file_name
+        
+        # Create the directory if it doesn't exist
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        doc.save(doc_name)
 
         print("Invoice generated successfully!")
 
 if __name__ == "__main__":
+    invoice_list =[]
     window = tk.Tk()
     window.title("Invoice Generator")
     root = tk.Frame(window)
