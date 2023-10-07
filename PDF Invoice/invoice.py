@@ -1,7 +1,6 @@
-import datetime
-import os
+import datetime, os
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from fpdf import FPDF
 from docxtpl import DocxTemplate
 
@@ -120,18 +119,24 @@ class InvoiceApp:
     def deleteItem(self):
         selected_item = self.tree.selection()[0]
         item_values = self.tree.item(selected_item, 'values')
+        item_values = (*item_values[:5], int(item_values[5]), float(item_values[6]), float(item_values[7]))
         print(item_values)
-        self.tree.delete(selected_item)
+        
 
         for item in invoice_list:
-            if item[:8] == item_values:
+            if item[:8] == list(item_values):
                 invoice_list.remove(item)
-                print("Item Deleted")
+                print("Exact Item Found: \n"+item+"\nitem has been deleted")
+                print(invoice_list)
                 break
-        print("Item Deleted")
+
+        self.tree.delete(selected_item)
 
     def newInvoice(self):
         self.company_entry.delete(0,tk.END)
+        self.start_entry.delete(0,tk.END)
+        self.end_entry.delete(0,tk.END)
+        self.arrivalTime_entry.delete(0,tk.END)
         self.clear_values()
         self.tree.delete(*self.tree.get_children())
         invoice_list.clear()
@@ -156,14 +161,18 @@ class InvoiceApp:
         file_path = "Invoice Receipt/" + getDateToday.strftime("%B") + "/"
         file_name = companyName +".docx"
         
+        # DEBUG ##
         doc_name = file_path + getDateToday.strftime("%b-%d-%H%M%S_") + file_name
-        
+                
+        # doc_name = file_path + getDateToday.strftime("%b-%d_") + file_name
+
         # Create the directory if it doesn't exist
         if not os.path.exists(file_path):
             os.makedirs(file_path)
         doc.save(doc_name)
 
-        print("Invoice generated successfully!")
+        messagebox.showinfo("Message","Invoice Completed")
+        # self.newInvoice()
 
 if __name__ == "__main__":
     invoice_list =[]
