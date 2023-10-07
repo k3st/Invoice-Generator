@@ -11,51 +11,76 @@ class InvoiceApp:
 
         # Create labels, entries, and buttons
 
-        self.company = tk.Label(root, text="Company")
-        self.company.grid(row= 0, column= 0,pady=10)
+        self.company = tk.Label(root, text="Company: ")
+        self.company.grid(row= 0, column= 0,pady=20, sticky="e")
         self.company_entry = tk.Entry(root)
-        self.company_entry.grid(row= 0, column= 1)
-
-
-
-        self.details = tk.Label(root, text="Enter Invoice Details:")
-        self.details.grid(row= 1,pady=10)
-        
-        self.invoice_label = tk.Label(root, text="Invoice Number:")
-        self.invoice_label.grid(row= 2, column= 0)
-        self.invoice_entry = tk.Entry(root)
-        self.invoice_entry.grid(row= 2, column= 1)
+        self.company_entry.grid(row= 0, column= 1,columnspan=2, sticky="ew")
 
         #CALENDAR START DATE AND END DATE
 
-        self.desc_label = tk.Label(root, text="Description:")
-        self.desc_label.grid(row= 3, column= 0)
-        self.desc_entry = tk.Entry(root)
-        self.desc_entry.grid(row= 3, column= 1)
+        self.start = tk.Label(root, text="Start Date:")
+        self.start.grid(row= 1, column= 0)
+        self.start_entry = tk.Entry(root)
+        self.start_entry.grid(row= 2, column= 0)
 
-        self.quantity_label = tk.Label(root, text="Days:")
-        self.quantity_label.grid(row= 4, column= 0)
-        self.quantity_entry = tk.Entry(root)
-        self.quantity_entry.grid(row= 4, column= 1)
+        self.end = tk.Label(root, text="End Date:")
+        self.end.grid(row= 1, column= 1)
+        self.end_entry = tk.Entry(root)
+        self.end_entry.grid(row= 2, column= 1)
 
-        self.price_label = tk.Label(root, text="Price:")
-        self.price_label.grid(row= 5, column= 0)
-        self.price_entry = tk.Entry(root)
-        self.price_entry.grid(row= 5, column= 1)
+        self.arrivalTime = tk.Label(root, text="Arrival:")
+        self.arrivalTime.grid(row=1, column= 3)
+        self.arrivalTime_entry = tk.Entry(root,width=10)
+        self.arrivalTime_entry.grid(row= 2, column= 3)
+
+        
+        self.driver_label = tk.Label(root, text="Driver:")
+        self.driver_label.grid(row= 1, column= 4,sticky="e")
+        self.driver_entry = tk.Entry(root)
+        self.driver_entry.grid(row= 1, column= 5)
+
+        self.guide_label = tk.Label(root, text="Guide:")
+        self.guide_label.grid(row= 2, column= 4,sticky="e")
+        self.guide_entry = tk.Entry(root)
+        self.guide_entry.grid(row= 2, column= 5)
+
+        self.spacer = ttk.Separator(root, orient='horizontal')
+        self.spacer.grid(row= 3, pady="12")
+
+        self.quantity_label = tk.Label(root, text="Days:  ")
+        self.quantity_label.grid(row= 4, column= 0,sticky="se")
+        self.quantity_entry = tk.Entry(root,width=8)
+        self.quantity_entry.grid(row= 4, column= 1,sticky="sw")
+
+        self.price_label = tk.Label(root, text="Price:  ")
+        self.price_label.grid(row= 4, column= 3,sticky="se")
+        self.price_entry = tk.Entry(root,width=15)
+        self.price_entry.grid(row= 4, column= 4,sticky="sw")
 
         ###         ADD ITEM 
 
-        self.add_item_button = tk.Button(root, text="Add Item", command=self.addItems)
-        self.add_item_button.grid(row = 7, column= 1, pady=5)
+        self.add_item_button = tk.Button(root, text="Add Current Item", command=self.addItems)
+        self.add_item_button.grid(row = 4, column= 5,sticky="se")
 
-        columns = ('desc','qty', 'price', 'total')
+        self.add_item_button = tk.Button(root, text="Delete Item", command=self.deleteItem)
+        self.add_item_button.grid(row = 8, column= 5,sticky="N")
+
+        
+
+        # columns = ('start','end','arr','driver','guide','days', 'price', 'total')
+        columns = ('driver','guide','days', 'price', 'total')
         self.tree = ttk.Treeview(root, columns=columns, show= "headings")
-        self.tree.heading('desc', text='Description')
-        self.tree.heading('qty', text='Number of Days')        
+
+        self.tree.heading('start', text='Start Date')
+        self.tree.heading('end', text='End Date')        
+        self.tree.heading('arr', text='Arrival')
+        self.tree.heading('driver', text='Driver')
+        self.tree.heading('guide', text='Guide')
+        self.tree.heading('days', text='Number of Days')        
         self.tree.heading('price', text='Price')
         self.tree.heading('total', text='TOTAL')
 
-        self.tree.grid(row = 8, column=0,columnspan=2,padx=30,pady=10)
+        self.tree.grid(row = 7, column=0,columnspan=8,padx=15,pady=10)
 
         ###         ALL ITEMS
 
@@ -72,18 +97,22 @@ class InvoiceApp:
 
     
     def addItems(self):
-        qty = int(self.quantity_entry.get())
+        start = self.start_entry.get()
+        end = self.end_entry.get()
+        arr = self.arrivalTime_entry.get()
+        driver = self.driver_entry.get()
+        guide = self.guide_entry.get()
+        days = int(self.quantity_entry.get())
         price = float(self.price_entry.get())
-        desc = self.desc_entry.get()
-        line_total = qty * price
-        invoice_items = [qty,desc,price,line_total]
+        line_total = days * price
+        invoice_items = [start,end,arr,driver,guide,days,price,line_total]
 
         self.tree.insert('',0,values=invoice_items)
         self.clear_values()
         invoice_list.append(invoice_items)
         print("ADDED")
 
-    def delete_item(self):
+    def deleteItem(self):
         selected_item = self.tree.selection()[0]
         self.tree.delete(selected_item)
         print("Item Deleted")
@@ -98,7 +127,7 @@ class InvoiceApp:
         doc = DocxTemplate("invoice_template.docx")
         companyName = self.company_entry.get()
 
-        grandTotal = sum(item[3] for item in invoice_list)
+        grandTotal = sum(item[8] for item in invoice_list)
 
         doc.render({
             "company":companyName,
