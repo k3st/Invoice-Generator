@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['invoice.py'],
+    ['trial.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='invoice',
+    name='trial',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
