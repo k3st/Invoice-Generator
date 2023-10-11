@@ -17,9 +17,13 @@ def addItems():
     arr = arrivalTime_entry.get()
     driver = driver_entry.get()
     guide = guide_entry.get()
-    days = int(quantity_entry.get())
-    price = float(price_entry.get())
-    line_total = days * price
+    try:
+        days = int(quantity_entry.get())
+        price = float(price_entry.get())
+        line_total = days * price
+    except Exception as err:
+        err2 = "Invalid Entry, enter numericals only.\n ValueError: "+ str(err)
+        messagebox.showinfo("Error!",err2)
     invoice_items = [start,end,arr,driver,guide,days,price,line_total]
 
     tree.insert('',0,values=invoice_items)
@@ -85,6 +89,12 @@ def generate_invoice():
     messagebox.showinfo("Message","Invoice Completed")
     # newInvoice()
 
+def callback(root, P):   
+    if str.isdigit(P) or str(P) == '':
+        return True
+    return False
+        
+
 
 invoice_list =[]
 window = tk.Tk()
@@ -134,14 +144,19 @@ spacer = ttk.Separator(root, orient='horizontal')
 spacer.grid(row= 3, pady="12")
 
 # # # --    Pricing Start                           ---     # # #
+
+#   Validator if 'ENTRY' is a Number
+vcmd = (root.register(callback))
+
+
 quantity_label = tk.Label(root, text="Days:  ")
 quantity_label.grid(row= 4, column= 0,sticky="se")
-quantity_entry = tk.Entry(root,width=8)
+quantity_entry = tk.Entry(root,width=8, validate='all', validatecommand=(vcmd, '%P')) 
 quantity_entry.grid(row= 4, column= 1,sticky="sw")
 
 price_label = tk.Label(root, text="Price:  ")
 price_label.grid(row= 4, column= 3,sticky="se")
-price_entry = tk.Entry(root,width=15)
+price_entry = tk.Entry(root,width=15, validate='all', validatecommand=(vcmd, '%P')) 
 price_entry.grid(row= 4, column= 4,sticky="sw")
 
 # # # --    Pricing End                             ---     # # #
